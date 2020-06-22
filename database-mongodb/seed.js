@@ -1,6 +1,5 @@
 const faker = require('faker');
-
-const db = require('./index.js');
+const Promise = require('bluebird');
 const Carousel = require('./Carousel.js');
 
 // amazon s3 images
@@ -25,10 +24,6 @@ function getRandomPhotoUrl() {
   const randomIdx = Math.floor(Math.random() * (max - min + 1)) + min;
   return images[randomIdx];
 }
-
-// randomTitle
-// faker.lorem.words();
-// console.log(`randomTitle=${randomTitle}`)
 
 function getRandomBed() {
   const min = 1;
@@ -60,9 +55,6 @@ function getRandomStars() {
   return randomStars;
 }
 
-// const isSuperhost =
-// faker.random.boolean();
-
 function getRandomReviewNo() {
   const min = 0;
   const max = 1000;
@@ -77,8 +69,6 @@ function getRandomUserId() {
   return randomUserId;
 }
 
-// const randomCity =
-// faker.address.city()
 
 const getCarousels = (num) => {
   const sampleCarouselSet = [];
@@ -93,11 +83,11 @@ const getCarousels = (num) => {
       imageUrl: getRandomPhotoUrl(),
       isSuperhost: faker.random.boolean(),
       review_no: getRandomReviewNo(),
-      save_status: {
+      bookmark: [{
         user_id: getRandomUserId(),
-        name: faker.address.city(),
-        saved: faker.random.boolean(),
-      },
+        isBookmark: faker.random.boolean(),
+        category: faker.address.city(),
+      }],
     };
     sampleCarouselSet.push(sampleCarousel);
   }
@@ -105,48 +95,13 @@ const getCarousels = (num) => {
 };
 
 const carousels = getCarousels(100);
-// console.log(carousels[99]);
 
-// const sampleCarousel = [
-//   {
-//     room_id: 1,
-//     title: 'White Swan - Abbey Suite with Fireplace',
-//     bed: 3,
-//     type: 'Entire house',
-//     price: 279,
-//     stars: {
-//       isStars: true,
-//       rating: 4
-//     },
-//     room_photo: {imageUrl: 'https://source.unsplash.com/1600x900/?bedroom', description: 'White Swan - Abbey Suite with Fireplace'},
-//     isSuperhost: true,
-//     review_no: 0,
-//     save_status: {
-//       user_id: 1,
-//       name: 'SF',
-//       saved: true
-//     }
-//   },
-// ]
 
 const insertSampleCarousel = function () {
   console.log('trying to make create');
-  Carousel.create(carousels, (err, result) => {
-    if (err) {
-      console.log(err);
-    }
-  })
-    .then(() => db.disconnect());
+  Promise.resolve(Carousel.create(carousels))
+    .then(() => db.disconnect())
+    .catch((error) => console.log('this is catch error:', error));
 };
-console.log('after create');
 
 insertSampleCarousel();
-
-// should call node seed.js in the seed directory
-// run seed.js (node seed.js)
-
-// connect mongo db and check my carousel collection is there
-
-// module.exports = {
-//   insertSampleCarousel
-// }
